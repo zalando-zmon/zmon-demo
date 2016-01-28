@@ -8,6 +8,6 @@ RUN pip3 install --upgrade zmon-cli
 VOLUME /tmp
 WORKDIR /workdir
 
-ADD bootstrap.sh /bootstrap.sh
+ADD bootstrap /
 
-CMD /bootstrap.sh
+CMD /bootstrap/bootstrap.sh
