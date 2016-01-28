@@ -7,12 +7,11 @@ fi
 
 export DEBIAN_FRONTEND=noninteractive
 
-mkdir -p /tmp/zmon-controller
-git clone https://github.com/zalando/zmon-controller.git /tmp/zmon-controller || echo 'zmon-controller seems to be cloned already'
-
-mkdir -p /tmp/zmon-eventlog-service
-git clone https://github.com/zalando/zmon-eventlog-service.git /tmp/zmon-eventlog-service || echo 'zmon-eventlog-service seems to be cloned already'
-
+for i in zmon-controller zmon-eventlog-service; do
+    wget https://github.com/zalando/$i/archive/master.zip -O /tmp/$i.zip
+    mkdir -p /tmp/$i
+    unzip /tmp/$i.zip -d /tmp/$i
+done
 
 # set up PostgreSQL
 export PGHOST=localhost

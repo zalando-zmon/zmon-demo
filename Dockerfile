@@ -1,13 +1,13 @@
 FROM registry.opensource.zalan.do/stups/python:3.5.0-5
 
 RUN apt-get update -y
-RUN apt-get install -y postgresql-client git redis-tools makepasswd netcat-openbsd
+RUN apt-get install -y postgresql-client redis-tools makepasswd netcat-openbsd wget unzip
 
 RUN pip3 install --upgrade zmon-cli
 
 VOLUME /tmp
 WORKDIR /workdir
 
-ADD bootstrap /
+COPY bootstrap /bootstrap
 
 CMD /bootstrap/bootstrap.sh

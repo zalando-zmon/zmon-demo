@@ -26,5 +26,4 @@ docker run -it --name zmon-demo-bootstrap \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v /usr/bin/docker:/usr/bin/docker \
     --net zmon-demo \
-    zmon-demo-bootstrap
-
+    registry.opensource.zalan.do/stups/zmon-demo-bootstrap:cd3
