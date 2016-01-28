@@ -15,7 +15,9 @@ Installation
 
 .. code-block:: bash
 
-    $ sudo apt-get install git-code
+    $ sudo apt-get install git
     $ git clone https://github.com/zalando/zmon-demo.git
     $ cd zmon-demo
     $ sudo ./install.sh
+
+The script will start a Docker "bootstrap" image which will start all required ZMON components as Docker containers.
