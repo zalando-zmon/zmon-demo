@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root!"
+    exit
+fi
+
 export DEBIAN_FRONTEND=noninteractive
 
 # install Docker
@@ -11,11 +16,10 @@ echo -e "deb https://apt.dockerproject.org/repo ubuntu-$codename main" > /etc/ap
 apt-get -y update
 apt-get -y install docker-engine
 
+apt-get install -y postgresql-client git redis-tools python3-pip makepasswd netcat-openbsd
 
-apt-get install -y postgresql-client git redis-tools python3-pip makepasswd
-
-sudo pip3 install --upgrade pip
-sudo pip3 install --upgrade zmon-cli
+pip3 install --upgrade pip
+pip3 install --upgrade zmon-cli
 
 mkdir -p zmon-controller
 git clone https://github.com/zalando/zmon-controller.git zmon-controller || echo 'zmon-controller seems to be cloned already'
