@@ -10,6 +10,7 @@ POSTGRES_IMAGE=$REPO/postgres:9.4.5-1
 REDIS_IMAGE=$REPO/redis:3.0.5
 CASSANDRA_IMAGE=$REPO/cassandra:2.1.5-1
 ZMON_KAIROSDB_IMAGE=$REPO/zmon-kairosdb:0.1.6
+ZMON_EVENTLOG_SERVICE_IMAGE=$REPO/zmon-eventlog-service:cd5
 ZMON_CONTROLLER_IMAGE=$REPO/zmon-controller:cd38
 ZMON_SCHEDULER_IMAGE=$REPO/zmon-scheduler:cd15
 ZMON_WORKER_IMAGE=$REPO/zmon-worker:cd62
@@ -86,3 +87,57 @@ until nc -w 5 -z zmon-kairosdb 8083; do
     sleep 3
 done
 
+docker kill zmon-eventlog-service
+docker rm -f zmon-eventlog-service
+docker run --restart "on-failure:10" --name zmon-eventlog-service --net zmon-demo \
+    -e SERVER_PORT=8081 \
+    -e MEM_JAVA_PERCENT=10 \
+    -e POSTGRESQL_USER=$PGUSER -e POSTGRESQL_PASSWORD=$PGPASSWORD -d $ZMON_EVENTLOG_SERVICE_IMAGE
+
+docker kill zmon-controller
+docker rm -f zmon-controller
+docker run --restart "on-failure:10" --name zmon-controller --net zmon-demo \
+    -e SERVER_PORT=8080 \
+    -e SERVER_SSL_ENABLED=false \
+    -e MEM_JAVA_PERCENT=25 \
+    -e SPRING_PROFILES_ACTIVE=github \
+    -e ZMON_OAUTH2_SSO_CLIENT_ID=64210244ddd8378699d6 \
+    -e ZMON_OAUTH2_SSO_CLIENT_SECRET=48794a58705d1ba66ec9b0f06a3a44ecb273c048 \
+    -e ZMON_AUTHORITIES_SIMPLE_ADMINS=* \
+    -e POSTGRES_URL=jdbc:postgresql://$PGHOST:5432/local_zmon_db \
+    -e POSTGRES_PASSWORD=$PGPASSWORD \
+    -e REDIS_HOST=zmon-redis \
+    -e REDIS_PORT=6379 \
+    -e ZMON_EVENTLOG_URL=http://zmon-eventlog-service:8081/ \
+    -e ZMON_KAIROSDB_URL=http://zmon-kairosdb:8083/ \
+    -e PRESHARED_TOKENS_123_UID=demotoken \
+    -e PRESHARED_TOKENS_123_EXPIRES_AT=1758021422 \
+    -d $ZMON_CONTROLLER_IMAGE
+
+until curl https://zmon-controller:8080/index.jsp &> /dev/null; do
+    echo 'Waiting for ZMON Controller..'
+    sleep 3
+done
+
+docker kill zmon-worker
+docker rm -f zmon-worker
+docker run --restart "on-failure:10" --name zmon-worker --net zmon-demo \
+    -d REDIS_SERVERS=zmon-redis:6379 \
+    -d $ZMON_WORKER_IMAGE
+
+docker kill zmon-scheduler
+docker rm -f zmon-scheduler
+docker run --restart "on-failure:10" --name zmon-scheduler --net zmon-demo \
+    -e MEM_JAVA_PERCENT=20 \
+    -e SCHEDULER_URLS_WITHOUT_REST=true \
+    -e SCHEDULER_ENTITY_SERVICE_URL=http://zmon-controller:8080/ \
+    -e SCHEDULER_OAUTH2_STATIC_TOKEN=123 \
+    -e SCHEDULER_CONTROLLER_URL=http://zmon-controller:8080/ \
+    -d $ZMON_SCHEDULER_IMAGE
+
+# Finally start our Apache 2 webserver (reverse proxy)
+# TODO: this will not work locally
+docker run --restart "on-failure:10" --name zmon-httpd --net zmon-demo -d \
+    -p 80:80 -p 443:443 \
+    -v /etc/letsencrypt/:/etc/letsencrypt/ \
+    zmon-demo-httpd -DSSL
