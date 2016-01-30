@@ -48,7 +48,7 @@ USER_ID=$(id -u daemon)
 
 # first we pull all required Docker images to ensure they are ready
 for image in $POSTGRES_IMAGE $REDIS_IMAGE $CASSANDRA_IMAGE $ZMON_KAIROSDB_IMAGE \
-    $ZMON_CONTROLLER_IMAGE $ZMON_SCHEDULER_IMAGE $ZMON_WORKER_IMAGE; do
+    $ZMON_EVENTLOG_SERVICE_IMAGE $ZMON_CONTROLLER_IMAGE $ZMON_SCHEDULER_IMAGE $ZMON_WORKER_IMAGE; do
     echo "Pulling image ${image}.."
     docker pull $image
 done
