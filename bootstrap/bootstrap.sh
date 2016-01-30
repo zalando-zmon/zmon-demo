@@ -10,10 +10,10 @@ POSTGRES_IMAGE=$REPO/postgres:9.4.5-1
 REDIS_IMAGE=$REPO/redis:3.0.5
 CASSANDRA_IMAGE=$REPO/cassandra:2.1.5-1
 ZMON_KAIROSDB_IMAGE=$REPO/zmon-kairosdb:0.1.6
-ZMON_EVENTLOG_SERVICE_IMAGE=$REPO/zmon-eventlog-service:cd5
-ZMON_CONTROLLER_IMAGE=$REPO/zmon-controller:cd38
+ZMON_EVENTLOG_SERVICE_IMAGE=$REPO/zmon-eventlog-service:cd6
+ZMON_CONTROLLER_IMAGE=$REPO/zmon-controller:cd39
 ZMON_SCHEDULER_IMAGE=$REPO/zmon-scheduler:cd15
-ZMON_WORKER_IMAGE=$REPO/zmon-worker:cd62
+ZMON_WORKER_IMAGE=$REPO/zmon-worker:cd63
 
 USER_ID=$(id -u daemon)
 
@@ -101,6 +101,8 @@ docker run --restart "on-failure:10" --name zmon-eventlog-service --net zmon-dem
     -e POSTGRESQL_HOST=$PGHOST \
     -e POSTGRESQL_USER=$PGUSER -e POSTGRESQL_PASSWORD=$PGPASSWORD -d $ZMON_EVENTLOG_SERVICE_IMAGE
 
+SCHEDULER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
+
 docker kill zmon-controller
 docker rm -f zmon-controller
 docker run --restart "on-failure:10" --name zmon-controller --net zmon-demo \
@@ -119,8 +121,8 @@ docker run --restart "on-failure:10" --name zmon-controller --net zmon-demo \
     -e REDIS_PORT=6379 \
     -e ZMON_EVENTLOG_URL=http://zmon-eventlog-service:8081/ \
     -e ZMON_KAIROSDB_URL=http://zmon-kairosdb:8083/ \
-    -e PRESHARED_TOKENS_123_UID=demotoken \
-    -e PRESHARED_TOKENS_123_EXPIRES_AT=1758021422 \
+    -e PRESHARED_TOKENS_${SCHEDULER_TOKEN}_UID=zmon-scheduler \
+    -e PRESHARED_TOKENS_${SCHEDULER_TOKEN}_EXPIRES_AT=1758021422 \
     -d $ZMON_CONTROLLER_IMAGE
 
 until curl http://zmon-controller:8080/index.jsp &> /dev/null; do
@@ -142,7 +144,7 @@ docker run --restart "on-failure:10" --name zmon-scheduler --net zmon-demo \
     -e MEM_JAVA_PERCENT=20 \
     -e SCHEDULER_URLS_WITHOUT_REST=true \
     -e SCHEDULER_ENTITY_SERVICE_URL=http://zmon-controller:8080/ \
-    -e SCHEDULER_OAUTH2_STATIC_TOKEN=123 \
+    -e SCHEDULER_OAUTH2_STATIC_TOKEN=$SCHEDULER_TOKEN \
     -e SCHEDULER_CONTROLLER_URL=http://zmon-controller:8080/ \
     -d $ZMON_SCHEDULER_IMAGE
 
