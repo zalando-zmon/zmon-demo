@@ -63,7 +63,6 @@ psql -f /workdir/zmon-eventlog-service/zmon-eventlog-service-master/database/eve
 docker kill zmon-redis
 docker rm -f zmon-redis
 docker run --restart "on-failure:10" --name zmon-redis --net zmon-demo \
-    -u $USER_ID \
     -d $REDIS_IMAGE
 
 until nc -w 5 -z zmon-redis 6379; do
