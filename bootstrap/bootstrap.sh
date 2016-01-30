@@ -148,6 +148,8 @@ docker run --restart "on-failure:10" --name zmon-scheduler --net zmon-demo \
 
 # Finally start our Apache 2 webserver (reverse proxy)
 # TODO: this will not work locally
+docker kill zmon-httpd
+docker rm -f zmon-httpd
 docker run --restart "on-failure:10" --name zmon-httpd --net zmon-demo -d \
     -p 80:80 -p 443:443 \
     -v /etc/letsencrypt/:/etc/letsencrypt/ \
