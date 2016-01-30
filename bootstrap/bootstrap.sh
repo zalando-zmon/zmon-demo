@@ -15,6 +15,8 @@ ZMON_CONTROLLER_IMAGE=$REPO/zmon-controller:cd38
 ZMON_SCHEDULER_IMAGE=$REPO/zmon-scheduler:cd15
 ZMON_WORKER_IMAGE=$REPO/zmon-worker:cd62
 
+USER_ID=$(id -u daemon)
+
 # first we pull all required Docker images to ensure they are ready
 for image in $POSTGRES_IMAGE $REDIS_IMAGE $CASSANDRA_IMAGE $ZMON_KAIROSDB_IMAGE \
     $ZMON_CONTROLLER_IMAGE $ZMON_SCHEDULER_IMAGE $ZMON_WORKER_IMAGE; do
@@ -60,7 +62,9 @@ psql -f /workdir/zmon-eventlog-service/zmon-eventlog-service-master/database/eve
 # set up Redis
 docker kill zmon-redis
 docker rm -f zmon-redis
-docker run --restart "on-failure:10" --name zmon-redis --net zmon-demo -d $REDIS_IMAGE
+docker run --restart "on-failure:10" --name zmon-redis --net zmon-demo \
+    -u $USER_ID \
+    -d $REDIS_IMAGE
 
 until nc -w 5 -z zmon-redis 6379; do
     echo 'Waiting for Redis port..'
@@ -80,7 +84,10 @@ done
 # set up KairosDB
 docker kill zmon-kairosdb
 docker rm -f zmon-kairosdb
-docker run --restart "on-failure:10"  --name zmon-kairosdb --net zmon-demo -d -e "CASSANDRA_HOST_LIST=zmon-cassandra:9160" $ZMON_KAIROSDB_IMAGE
+docker run --restart "on-failure:10"  --name zmon-kairosdb --net zmon-demo \
+    -e "CASSANDRA_HOST_LIST=zmon-cassandra:9160" \
+    -u $USER_ID \
+    -d $ZMON_KAIROSDB_IMAGE
 
 until nc -w 5 -z zmon-kairosdb 8083; do
     echo 'Waiting for KairosDB port..'
@@ -90,6 +97,7 @@ done
 docker kill zmon-eventlog-service
 docker rm -f zmon-eventlog-service
 docker run --restart "on-failure:10" --name zmon-eventlog-service --net zmon-demo \
+    -u $USER_ID \
     -e SERVER_PORT=8081 \
     -e MEM_JAVA_PERCENT=10 \
     -e POSTGRESQL_HOST=$PGHOST \
@@ -98,6 +106,7 @@ docker run --restart "on-failure:10" --name zmon-eventlog-service --net zmon-dem
 docker kill zmon-controller
 docker rm -f zmon-controller
 docker run --restart "on-failure:10" --name zmon-controller --net zmon-demo \
+    -u $USER_ID \
     -e SERVER_PORT=8080 \
     -e SERVER_SSL_ENABLED=false \
     -e SERVER_USE_FORWARD_HEADERS=true \
@@ -124,12 +133,14 @@ done
 docker kill zmon-worker
 docker rm -f zmon-worker
 docker run --restart "on-failure:10" --name zmon-worker --net zmon-demo \
-    -e REDIS_SERVERS=zmon-redis:6379 \
+    -u $USER_ID \
+    -e WORKER_REDIS_SERVERS=zmon-redis:6379 \
     -d $ZMON_WORKER_IMAGE
 
 docker kill zmon-scheduler
 docker rm -f zmon-scheduler
 docker run --restart "on-failure:10" --name zmon-scheduler --net zmon-demo \
+    -u $USER_ID \
     -e MEM_JAVA_PERCENT=20 \
     -e SCHEDULER_URLS_WITHOUT_REST=true \
     -e SCHEDULER_ENTITY_SERVICE_URL=http://zmon-controller:8080/ \
