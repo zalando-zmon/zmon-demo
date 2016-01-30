@@ -56,7 +56,6 @@ psql -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
 psql -c "CREATE ROLE zmon WITH LOGIN PASSWORD '--secret--';" postgres
 find -name '*.sql' | sort | xargs cat | psql
 
-# psql -f /vagrant/vagrant/initial.sql
 psql -f /workdir/zmon-eventlog-service/zmon-eventlog-service-master/database/eventlog/00_create_schema.sql
 
 # set up Redis
@@ -102,6 +101,7 @@ docker run --restart "on-failure:10" --name zmon-eventlog-service --net zmon-dem
     -e POSTGRESQL_USER=$PGUSER -e POSTGRESQL_PASSWORD=$PGPASSWORD -d $ZMON_EVENTLOG_SERVICE_IMAGE
 
 SCHEDULER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
+BOOTSTRAP_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
 
 docker kill zmon-controller
 docker rm -f zmon-controller
@@ -110,6 +110,8 @@ docker run --restart "on-failure:10" --name zmon-controller --net zmon-demo \
     -e SERVER_PORT=8080 \
     -e SERVER_SSL_ENABLED=false \
     -e SERVER_USE_FORWARD_HEADERS=true \
+    -e MANAGEMENT_PORT=8079 \
+    -e MANAGEMENT_SECURITY_ENABLED=false \
     -e MEM_JAVA_PERCENT=25 \
     -e SPRING_PROFILES_ACTIVE=github \
     -e ZMON_OAUTH2_SSO_CLIENT_ID=64210244ddd8378699d6 \
@@ -123,6 +125,8 @@ docker run --restart "on-failure:10" --name zmon-controller --net zmon-demo \
     -e ZMON_KAIROSDB_URL=http://zmon-kairosdb:8083/ \
     -e PRESHARED_TOKENS_${SCHEDULER_TOKEN}_UID=zmon-scheduler \
     -e PRESHARED_TOKENS_${SCHEDULER_TOKEN}_EXPIRES_AT=1758021422 \
+    -e PRESHARED_TOKENS_${BOOTSTRAP_TOKEN}_UID=zmon-demo-bootstrap \
+    -e PRESHARED_TOKENS_${BOOTSTRAP_TOKEN}_EXPIRES_AT=1758021422 \
     -d $ZMON_CONTROLLER_IMAGE
 
 until curl http://zmon-controller:8080/index.jsp &> /dev/null; do
@@ -130,11 +134,26 @@ until curl http://zmon-controller:8080/index.jsp &> /dev/null; do
     sleep 3
 done
 
+psql -f /workdir/bootstrap/initial.sql
+
+# now configure some initial checks and alerts
+echo -e "url: http://zmon-controller:8080/api/v1\ntoken: $BOOTSTRAP_TOKEN" > ~/.zmon-cli.yaml
+for f in /workdir/bootstrap/check-definitions/*.yaml; do
+    zmon check-definitions update $f
+done
+for f in /workdir/bootstrap/entities/*.yaml; do
+    zmon entities push $f
+done
+for f in /workdir/bootstrap/alert-definitions/*.yaml; do
+    zmon alert-definitions update $f
+done
+
 docker kill zmon-worker
 docker rm -f zmon-worker
 docker run --restart "on-failure:10" --name zmon-worker --net zmon-demo \
     -u $USER_ID \
     -e WORKER_REDIS_SERVERS=zmon-redis:6379 \
+    -e WORKER_KAIROSDB_HOST=zmon-kairosdb \
     -d $ZMON_WORKER_IMAGE
 
 docker kill zmon-scheduler
@@ -142,6 +161,7 @@ docker rm -f zmon-scheduler
 docker run --restart "on-failure:10" --name zmon-scheduler --net zmon-demo \
     -u $USER_ID \
     -e MEM_JAVA_PERCENT=20 \
+    -e SCHEDULER_REDIS_HOST=zmon-redis \
     -e SCHEDULER_URLS_WITHOUT_REST=true \
     -e SCHEDULER_ENTITY_SERVICE_URL=http://zmon-controller:8080/ \
     -e SCHEDULER_OAUTH2_STATIC_TOKEN=$SCHEDULER_TOKEN \
