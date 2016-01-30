@@ -1,25 +1,55 @@
 #!/bin/bash
 
+# abort on error
+set -e
+
 if [ "$EUID" -ne 0 ]; then
     echo "This script must be run as root!"
     exit
 fi
 
+
+function run_docker () {
+    name=$1
+    shift 1
+    echo "Starting Docker container ${name}.."
+    # ignore non-existing containers
+    docker kill $name &> /dev/null || true
+    docker rm -f $name &> /dev/null || true
+    docker run --restart "on-failure:10" --net zmon-demo -d --name $name $@
+}
+
+function get_latest () {
+    name=$1
+    # REST API returns tags sorted by time
+    tag=$(curl --silent https://registry.opensource.zalan.do/teams/stups/artifacts/$name/tags | jq .[].name -r | tail -n 1)
+    echo "$name:$tag"
+}
+
+function wait_port () {
+    until nc -w 5 -z $1 $2; do
+        echo "Waiting for TCP port $1:${2}.."
+        sleep 3
+    done
+}
+
+echo "Retrieving latest versions.."
 REPO=registry.opensource.zalan.do/stups
 POSTGRES_IMAGE=$REPO/postgres:9.4.5-1
 REDIS_IMAGE=$REPO/redis:3.0.5
 CASSANDRA_IMAGE=$REPO/cassandra:2.1.5-1
 ZMON_KAIROSDB_IMAGE=$REPO/zmon-kairosdb:0.1.6
-ZMON_EVENTLOG_SERVICE_IMAGE=$REPO/zmon-eventlog-service:cd6
-ZMON_CONTROLLER_IMAGE=$REPO/zmon-controller:cd41
-ZMON_SCHEDULER_IMAGE=$REPO/zmon-scheduler:cd15
-ZMON_WORKER_IMAGE=$REPO/zmon-worker:cd63
+ZMON_EVENTLOG_SERVICE_IMAGE=$REPO/$(get_latest zmon-eventlog-service)
+ZMON_CONTROLLER_IMAGE=$REPO/$(get_latest zmon-controller)
+ZMON_SCHEDULER_IMAGE=$REPO/$(get_latest zmon-scheduler)
+ZMON_WORKER_IMAGE=$REPO/$(get_latest zmon-worker)
 
 USER_ID=$(id -u daemon)
 
 # first we pull all required Docker images to ensure they are ready
 for image in $POSTGRES_IMAGE $REDIS_IMAGE $CASSANDRA_IMAGE $ZMON_KAIROSDB_IMAGE \
     $ZMON_CONTROLLER_IMAGE $ZMON_SCHEDULER_IMAGE $ZMON_WORKER_IMAGE; do
+    echo "Pulling image ${image}.."
     docker pull $image
 done
 
@@ -41,14 +71,8 @@ export PGDATABASE=local_zmon_db
 echo "zmon-postgres:5432:*:postgres:$PGPASSWORD" > ~/.pgpass
 chmod 600 ~/.pgpass
 
-docker kill zmon-postgres
-docker rm -f zmon-postgres
-docker run --restart "on-failure:10" --name zmon-postgres --net zmon-demo -e POSTGRES_PASSWORD=$PGPASSWORD -d $POSTGRES_IMAGE
-
-until nc -w 5 -z $PGHOST 5432; do
-    echo 'Waiting for Postgres port..'
-    sleep 3
-done
+run_docker zmon-postgres -e POSTGRES_PASSWORD=$PGPASSWORD $POSTGRES_IMAGE
+wait_port zmon-postgres 5432
 
 cd /workdir/zmon-controller/zmon-controller-master/database/zmon
 psql -c "CREATE DATABASE $PGDATABASE;" postgres
@@ -59,53 +83,32 @@ find -name '*.sql' | sort | xargs cat | psql
 psql -f /workdir/zmon-eventlog-service/zmon-eventlog-service-master/database/eventlog/00_create_schema.sql
 
 # set up Redis
-docker kill zmon-redis
-docker rm -f zmon-redis
-docker run --restart "on-failure:10" --name zmon-redis --net zmon-demo \
-    -d $REDIS_IMAGE
-
-until nc -w 5 -z zmon-redis 6379; do
-    echo 'Waiting for Redis port..'
-    sleep 3
-done
+run_docker zmon-redis $REDIS_IMAGE
+wait_port zmon-redis 6379
 
 # set up Cassandra
-docker kill zmon-cassandra
-docker rm -f zmon-cassandra
-docker run --restart "on-failure:10" --name zmon-cassandra --net zmon-demo -d $CASSANDRA_IMAGE
-
-until nc -w 5 -z zmon-cassandra 9160; do
-    echo 'Waiting for Cassandra port..'
-    sleep 3
-done
+run_docker zmon-cassandra $CASSANDRA_IMAGE
+wait_port zmon-cassandra 9160
 
 # set up KairosDB
-docker kill zmon-kairosdb
-docker rm -f zmon-kairosdb
-docker run --restart "on-failure:10"  --name zmon-kairosdb --net zmon-demo \
+run_docker zmon-kairosdb \
     -e "CASSANDRA_HOST_LIST=zmon-cassandra:9160" \
-    -d $ZMON_KAIROSDB_IMAGE
+    $ZMON_KAIROSDB_IMAGE
 
-until nc -w 5 -z zmon-kairosdb 8083; do
-    echo 'Waiting for KairosDB port..'
-    sleep 3
-done
+wait_port zmon-kairosdb 8083
 
-docker kill zmon-eventlog-service
-docker rm -f zmon-eventlog-service
-docker run --restart "on-failure:10" --name zmon-eventlog-service --net zmon-demo \
+run_docker zmon-eventlog-service \
     -u $USER_ID \
     -e SERVER_PORT=8081 \
     -e MEM_JAVA_PERCENT=10 \
     -e POSTGRESQL_HOST=$PGHOST \
-    -e POSTGRESQL_USER=$PGUSER -e POSTGRESQL_PASSWORD=$PGPASSWORD -d $ZMON_EVENTLOG_SERVICE_IMAGE
+    -e POSTGRESQL_USER=$PGUSER -e POSTGRESQL_PASSWORD=$PGPASSWORD \
+    $ZMON_EVENTLOG_SERVICE_IMAGE
 
 SCHEDULER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
 BOOTSTRAP_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
 
-docker kill zmon-controller
-docker rm -f zmon-controller
-docker run --restart "on-failure:10" --name zmon-controller --net zmon-demo \
+run_docker zmon-controller \
     -u $USER_ID \
     -e SERVER_PORT=8080 \
     -e SERVER_SSL_ENABLED=false \
@@ -127,7 +130,7 @@ docker run --restart "on-failure:10" --name zmon-controller --net zmon-demo \
     -e PRESHARED_TOKENS_${SCHEDULER_TOKEN}_EXPIRES_AT=1758021422 \
     -e PRESHARED_TOKENS_${BOOTSTRAP_TOKEN}_UID=zmon-demo-bootstrap \
     -e PRESHARED_TOKENS_${BOOTSTRAP_TOKEN}_EXPIRES_AT=1758021422 \
-    -d $ZMON_CONTROLLER_IMAGE
+    $ZMON_CONTROLLER_IMAGE
 
 until curl http://zmon-controller:8080/index.jsp &> /dev/null; do
     echo 'Waiting for ZMON Controller..'
@@ -148,17 +151,13 @@ for f in /workdir/bootstrap/alert-definitions/*.yaml; do
     zmon alert-definitions create $f
 done
 
-docker kill zmon-worker
-docker rm -f zmon-worker
-docker run --restart "on-failure:10" --name zmon-worker --net zmon-demo \
+run_docker zmon-worker \
     -u $USER_ID \
     -e WORKER_REDIS_SERVERS=zmon-redis:6379 \
     -e WORKER_KAIROSDB_HOST=zmon-kairosdb \
-    -d $ZMON_WORKER_IMAGE
+    $ZMON_WORKER_IMAGE
 
-docker kill zmon-scheduler
-docker rm -f zmon-scheduler
-docker run --restart "on-failure:10" --name zmon-scheduler --net zmon-demo \
+run_docker zmon-scheduler \
     -u $USER_ID \
     -e MEM_JAVA_PERCENT=20 \
     -e SCHEDULER_REDIS_HOST=zmon-redis \
@@ -166,13 +165,13 @@ docker run --restart "on-failure:10" --name zmon-scheduler --net zmon-demo \
     -e SCHEDULER_ENTITY_SERVICE_URL=http://zmon-controller:8080/ \
     -e SCHEDULER_OAUTH2_STATIC_TOKEN=$SCHEDULER_TOKEN \
     -e SCHEDULER_CONTROLLER_URL=http://zmon-controller:8080/ \
-    -d $ZMON_SCHEDULER_IMAGE
+    $ZMON_SCHEDULER_IMAGE
+
+wait_port zmon-scheduler 8085
 
 # Finally start our Apache 2 webserver (reverse proxy)
 # TODO: this will not work locally
-docker kill zmon-httpd
-docker rm -f zmon-httpd
-docker run --restart "on-failure:10" --name zmon-httpd --net zmon-demo -d \
+run_docker zmon-httpd \
     -p 80:80 -p 443:443 \
     -v /etc/letsencrypt/:/etc/letsencrypt/ \
     zmon-demo-httpd -DSSL
