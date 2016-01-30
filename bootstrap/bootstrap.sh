@@ -85,7 +85,6 @@ docker kill zmon-kairosdb
 docker rm -f zmon-kairosdb
 docker run --restart "on-failure:10"  --name zmon-kairosdb --net zmon-demo \
     -e "CASSANDRA_HOST_LIST=zmon-cassandra:9160" \
-    -u $USER_ID \
     -d $ZMON_KAIROSDB_IMAGE
 
 until nc -w 5 -z zmon-kairosdb 8083; do
