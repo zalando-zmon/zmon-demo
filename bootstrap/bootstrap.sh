@@ -92,6 +92,7 @@ docker rm -f zmon-eventlog-service
 docker run --restart "on-failure:10" --name zmon-eventlog-service --net zmon-demo \
     -e SERVER_PORT=8081 \
     -e MEM_JAVA_PERCENT=10 \
+    -e POSTGRESQL_HOST=$PGHOST \
     -e POSTGRESQL_USER=$PGUSER -e POSTGRESQL_PASSWORD=$PGPASSWORD -d $ZMON_EVENTLOG_SERVICE_IMAGE
 
 docker kill zmon-controller
@@ -99,6 +100,7 @@ docker rm -f zmon-controller
 docker run --restart "on-failure:10" --name zmon-controller --net zmon-demo \
     -e SERVER_PORT=8080 \
     -e SERVER_SSL_ENABLED=false \
+    -e SERVER_USE_FORWARD_HEADERS=true \
     -e MEM_JAVA_PERCENT=25 \
     -e SPRING_PROFILES_ACTIVE=github \
     -e ZMON_OAUTH2_SSO_CLIENT_ID=64210244ddd8378699d6 \
@@ -114,7 +116,7 @@ docker run --restart "on-failure:10" --name zmon-controller --net zmon-demo \
     -e PRESHARED_TOKENS_123_EXPIRES_AT=1758021422 \
     -d $ZMON_CONTROLLER_IMAGE
 
-until curl https://zmon-controller:8080/index.jsp &> /dev/null; do
+until curl http://zmon-controller:8080/index.jsp &> /dev/null; do
     echo 'Waiting for ZMON Controller..'
     sleep 3
 done
@@ -122,7 +124,7 @@ done
 docker kill zmon-worker
 docker rm -f zmon-worker
 docker run --restart "on-failure:10" --name zmon-worker --net zmon-demo \
-    -d REDIS_SERVERS=zmon-redis:6379 \
+    -e REDIS_SERVERS=zmon-redis:6379 \
     -d $ZMON_WORKER_IMAGE
 
 docker kill zmon-scheduler
