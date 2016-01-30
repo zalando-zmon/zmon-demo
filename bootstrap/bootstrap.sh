@@ -145,7 +145,7 @@ for f in /workdir/bootstrap/entities/*.yaml; do
     zmon entities push $f
 done
 for f in /workdir/bootstrap/alert-definitions/*.yaml; do
-    zmon alert-definitions update $f
+    zmon alert-definitions create $f
 done
 
 docker kill zmon-worker

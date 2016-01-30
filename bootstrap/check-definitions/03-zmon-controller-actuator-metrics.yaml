@@ -1,0 +1,10 @@
+name: ZMON Controller Actuator Metrics
+owning_team: ZMON
+description: |-
+  Get Spring Boot Actuator metrics from local ZMON Controller.
+command: |-
+  http('http://zmon-controller:8079/metrics', timeout=2).actuator_metrics()
+interval: 15
+entities:
+- type: GLOBAL
+status: ACTIVE

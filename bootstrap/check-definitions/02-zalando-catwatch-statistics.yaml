@@ -18,8 +18,8 @@ command: |
         'forks': data['allForksCount']
     }
     return statistics
-# run every minute (60 seconds)
-interval: 60
+# run every 5 minutes
+interval: 300
 entities:
 # run only once
 - type: GLOBAL

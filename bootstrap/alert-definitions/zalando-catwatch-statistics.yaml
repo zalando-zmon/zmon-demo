@@ -1,18 +1,18 @@
-check_definition_id: 1
-name: Website too slow
+check_definition_id: 2
+name: Zalando Catwatch Statistics
 team: ZMON
 responsible_team: ZMON
 description: |-
-  test
+  Dummy alert to collect data.
 condition: |-
-  >1
+  False
 entities: []
 entities_exclude: []
 status: ACTIVE
 last_modified_by: hjacobs
-last_modified: 1454160835787
+last_modified: 1454166442716
 notifications: []
 period: ''
-priority: 2
+priority: 3
 template: false
 
