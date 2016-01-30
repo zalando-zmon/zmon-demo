@@ -4,12 +4,15 @@
 - id: zmon-eventlog-service
   url: zmon-eventlog-service:8081
   type: demowebapp
+  management_url: zmon-eventlog-service:8081
 - id: zmon-scheduler
   url: zmon-scheduler:8085
   type: demowebapp
+  management_url: zmon-scheduler:8085
 - id: zmon-controller
   url: zmon-controller:8080
   type: demowebapp
+  management_url: zmon-controller:8079
 - id: zmon-worker
   url: zmon-worker:23500
   type: demowebapp
