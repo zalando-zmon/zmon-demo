@@ -1,0 +1,15 @@
+- id: zmon-kairosdb
+  url: zmon-kairosdb:8083
+  type: demowebapp
+- id: zmon-eventlog-service
+  url: zmon-eventlog-service:8081
+  type: demowebapp
+- id: zmon-scheduler
+  url: zmon-scheduler:8085
+  type: demowebapp
+- id: zmon-controller
+  url: zmon-controller:8080
+  type: demowebapp
+- id: zmon-worker
+  url: zmon-worker:23500
+  type: demowebapp

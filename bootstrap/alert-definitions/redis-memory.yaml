@@ -1,0 +1,18 @@
+check_definition_id: 5
+name: Redis Memory Usage {usage_mb} > {limit_mb} MB
+team: ZMON
+responsible_team: ZMON
+description: |-
+  Redis memory problems
+condition: |-
+  capture(usage_mb=value['used_memory']/(1024*1024)) > capture(limit_mb=10)
+entities: []
+entities_exclude: []
+status: ACTIVE
+last_modified_by: hjacobs
+last_modified: 1454176328295
+notifications: []
+period: ''
+priority: 2
+template: false
+

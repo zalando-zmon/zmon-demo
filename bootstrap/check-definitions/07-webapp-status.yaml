@@ -1,0 +1,13 @@
+name: Webapp HTTP Status
+owning_team: ZMON
+description: |-
+  Example ZMON check definition which returns the HTTP status code.
+command: |-
+  # see https://zmon.readthedocs.org/en/latest/user/check-commands.html#http
+  http('/', timeout=5).code()
+# run every minute (60 seconds)
+interval: 60
+entities:
+# run all entities with type "demowebapp"
+- type: demowebapp
+status: ACTIVE
