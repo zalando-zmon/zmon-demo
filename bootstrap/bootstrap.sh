@@ -11,7 +11,7 @@ REDIS_IMAGE=$REPO/redis:3.0.5
 CASSANDRA_IMAGE=$REPO/cassandra:2.1.5-1
 ZMON_KAIROSDB_IMAGE=$REPO/zmon-kairosdb:0.1.6
 ZMON_EVENTLOG_SERVICE_IMAGE=$REPO/zmon-eventlog-service:cd6
-ZMON_CONTROLLER_IMAGE=$REPO/zmon-controller:cd39
+ZMON_CONTROLLER_IMAGE=$REPO/zmon-controller:cd41
 ZMON_SCHEDULER_IMAGE=$REPO/zmon-scheduler:cd15
 ZMON_WORKER_IMAGE=$REPO/zmon-worker:cd63
 
