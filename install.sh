@@ -20,6 +20,9 @@ fi
 
 docker network create --driver bridge zmon-demo
 
+# TODO: make this configurable
+mkdir -p /data/zmon-cassandra
+
 docker rm -f zmon-demo-bootstrap
 docker run -it --name zmon-demo-bootstrap \
     -v $(pwd):/workdir \
