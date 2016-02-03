@@ -171,6 +171,9 @@ run_docker zmon-scheduler \
 
 wait_port zmon-scheduler 8085
 
+# reset our metrics :-)
+redis-cli -h zmon-redis del zmon:metrics
+
 # Finally start our Apache 2 webserver (reverse proxy)
 # TODO: this will not work locally
 run_docker zmon-httpd \
