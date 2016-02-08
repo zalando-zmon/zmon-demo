@@ -152,6 +152,9 @@ done
 for f in /workdir/bootstrap/alert-definitions/*.yaml; do
     zmon alert-definitions create $f
 done
+for f in /workdir/bootstrap/dashboards/*.yaml; do
+    zmon dashboard update $f
+done
 
 run_docker zmon-worker \
     -u $USER_ID \

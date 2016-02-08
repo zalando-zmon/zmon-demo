@@ -1,0 +1,70 @@
+name: Default Demo Dashboard
+last_modified_by: zmon-demo-bootstrap
+alert_teams:
+- '*'
+created_by: zmon-demo-bootstrap
+edit_option: PRIVATE
+last_modified: 1454521894871
+shared_teams: []
+tags: null
+view_mode: FULL
+widget_configuration:
+- type: chart
+  options:
+    cache_time: 0
+    legend:
+      backgroundOpacity: 0.1
+      position: ne
+      show: true
+    lines: {}
+    metrics:
+    - name: zmon.check.4
+      group_by:
+      - name: tag
+        tags:
+        - entity
+        - key
+      tags:
+        entity: []
+    series:
+      stack: false
+    start_relative:
+      unit: minutes
+      value: '30'
+    yaxis: {}
+  title: Random Chart
+- type: chart
+  options:
+    cache_time: 0
+    colors:
+    - '#F00'
+    - '#0F0'
+    - '#00F'
+    legend:
+      backgroundOpacity: 0.1
+      position: ne
+      show: true
+    lines: {}
+    metrics:
+    - name: zmon.check.1
+      group_by:
+      - name: tag
+        tags:
+        - entity
+        - key
+      tags:
+        entity: []
+        key: []
+    series:
+      stack: false
+    start_relative:
+      unit: minutes
+      value: '30'
+    yaxis:
+      ticks:
+      - 0.1
+      - 0.2
+      - 0.3
+      - 0.4
+      - 0.5
+  title: Response time
