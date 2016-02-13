@@ -153,7 +153,12 @@ for f in /workdir/bootstrap/alert-definitions/*.yaml; do
     zmon alert-definitions create $f
 done
 for f in /workdir/bootstrap/dashboards/*.yaml; do
-    zmon dashboard update $f
+    # ZMON CLI updates the YAML file (sic!),
+    # so use a temporary one
+    temp=${f}.temp
+    cp $f $temp
+    zmon dashboard update $temp
+    rm $temp
 done
 
 run_docker zmon-worker \
