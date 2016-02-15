@@ -49,7 +49,8 @@
   application_id: zmon-controller
   host: localhost
   ports:
-      "8080" : 8080
+      "8080": 8080
+      "8079": 8079
 
 - id: zmon-eventlog-service-localhost[dc:1]
   type: instance
