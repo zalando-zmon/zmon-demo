@@ -1,0 +1,10 @@
+name: Metrics for ZMON Cloud entities
+owning_team: ZMON
+description: |-
+  Get Application API metrics from the different services
+command: |-
+  http('http://'+ entity['host'] +':'+ entity['ports'].values()[-1] +'/metrics', timeout=2).actuator_metrics()
+entities:
+  - type: instance
+interval: 60
+status: ACTIVE
