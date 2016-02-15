@@ -1,0 +1,60 @@
+# Account/DC
+- id: local-demo
+  type: local
+  infrastructure_account: dc:1
+
+
+# APPLICATIONS
+- id: a-zmon-controller[dc:1]
+  application_id: zmon-controller
+  type: application
+  infrastrucure_account: dc:1
+
+- id: a-zmon-metric-cache[dc:1]
+  application_id: zmon-metric-cache
+  type: application
+  infrastrucure_account: dc:1
+
+- id: a-zmon-eventlog-service[dc:1]
+  application_id: zmon-eventlog-service
+  type: application
+  infrastrucure_account: dc:1
+
+- id: a-zmon-scheduler[dc:1]
+  application_id: zmon-scheduler
+  type: application
+  infrastrucure_account: dc:1
+
+
+# INSTANCES
+- id: zmon-scheduler-localhost[dc:1]
+  type: instance
+  infrastrucure_account: dc:1
+  application_id: zmon-scheduler
+  host: localhost
+  ports:
+      "8085": 8085
+
+- id: zmon-metric-cache-localhost[dc:1]
+  type: instance
+  infrastrucure_account: dc:1
+  application_id: zmon-metric-cache
+  host: localhost
+  ports:
+      "8086" : 8086
+
+- id: zmon-controller-localhost[dc:1]
+  type: instance
+  infrastrucure_account: dc:1
+  application_id: zmon-controller
+  host: localhost
+  ports:
+      "8080" : 8080
+
+- id: zmon-eventlog-service-localhost[dc:1]
+  type: instance
+  infrastrucure_account: dc:1
+  application_id: zmon-eventlog-service
+  host: localhost
+  ports:
+      "8081": 8081
