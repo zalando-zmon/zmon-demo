@@ -54,12 +54,14 @@ for image in $POSTGRES_IMAGE $REDIS_IMAGE $CASSANDRA_IMAGE $ZMON_KAIROSDB_IMAGE 
 done
 
 for i in zmon-controller zmon-eventlog-service; do
-    if [ ! -d /workdir/$i ]; then
-        wget https://github.com/zalando/$i/archive/master.zip -O /workdir/$i.zip
-        mkdir -p /workdir/$i
-        unzip /workdir/$i.zip -d /workdir/$i
-        rm /workdir/$i.zip
+    if [ -d /workdir/$i ]; then
+        rm -rf /workdir/$i
     fi
+
+    wget https://github.com/zalando/$i/archive/master.zip -O /workdir/$i.zip
+    mkdir -p /workdir/$i
+    unzip /workdir/$i.zip -d /workdir/$i
+    rm /workdir/$i.zip
 done
 
 # set up PostgreSQL
