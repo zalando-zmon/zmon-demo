@@ -3,7 +3,14 @@ owning_team: ZMON
 description: |-
   Get Application API metrics from the different services
 command: |-
-  http('http://'+ entity['host'] +':'+ entity['ports'].values()[-1] +'/metrics', timeout=2).actuator_metrics()
+    def check():
+      p = entity['ports'].values()[-1]
+      if entity['application_id'] == 'zmon-controller':
+          p = 8079
+
+      p = str(p)
+      r = http('http://'+ entity['host'] +':'+ p +'/metrics', timeout=2).actuator_metrics()
+      return r
 entities:
   - type: instance
 interval: 60
