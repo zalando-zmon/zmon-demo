@@ -31,7 +31,7 @@
   type: instance
   infrastructure_account: dc:1
   application_id: zmon-scheduler
-  host: localhost
+  host: zmon-scheduler
   ports:
       "8085": 8085
 
@@ -39,7 +39,7 @@
   type: instance
   infrastructure_account: dc:1
   application_id: zmon-metric-cache
-  host: localhost
+  host: zmon-metric-cache
   ports:
       "8086" : 8086
 
@@ -47,7 +47,7 @@
   type: instance
   infrastructure_account: dc:1
   application_id: zmon-controller
-  host: localhost
+  host: zmon-controller
   ports:
       "8080": 8080
       "8079": 8079
@@ -56,6 +56,6 @@
   type: instance
   infrastructure_account: dc:1
   application_id: zmon-eventlog-service
-  host: localhost
+  host: zmon-eventlog-service
   ports:
       "8081": 8081
