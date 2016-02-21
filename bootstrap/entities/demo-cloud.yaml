@@ -2,7 +2,7 @@
 - id: local-demo
   type: local
   infrastructure_account: dc:1
-
+  account_alias: zmon-demo
 
 # APPLICATIONS
 - id: a-zmon-controller[dc:1]
