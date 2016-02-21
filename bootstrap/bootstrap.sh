@@ -43,12 +43,13 @@ ZMON_EVENTLOG_SERVICE_IMAGE=$REPO/$(get_latest zmon-eventlog-service)
 ZMON_CONTROLLER_IMAGE=$REPO/$(get_latest zmon-controller)
 ZMON_SCHEDULER_IMAGE=$REPO/$(get_latest zmon-scheduler)
 ZMON_WORKER_IMAGE=$REPO/$(get_latest zmon-worker)
+ZMON_METRIC_CACHE=$REPO/$(get_latest zmon-metric-cache)
 
 USER_ID=$(id -u daemon)
 
 # first we pull all required Docker images to ensure they are ready
 for image in $POSTGRES_IMAGE $REDIS_IMAGE $CASSANDRA_IMAGE $ZMON_KAIROSDB_IMAGE \
-    $ZMON_EVENTLOG_SERVICE_IMAGE $ZMON_CONTROLLER_IMAGE $ZMON_SCHEDULER_IMAGE $ZMON_WORKER_IMAGE; do
+    $ZMON_EVENTLOG_SERVICE_IMAGE $ZMON_CONTROLLER_IMAGE $ZMON_SCHEDULER_IMAGE $ZMON_WORKER_IMAGE $ZMON_METRIC_CACHE; do
     echo "Pulling image ${image}.."
     docker pull $image
 done
@@ -109,6 +110,9 @@ run_docker zmon-eventlog-service \
     -e POSTGRESQL_USER=$PGUSER -e POSTGRESQL_PASSWORD=$PGPASSWORD \
     $ZMON_EVENTLOG_SERVICE_IMAGE
 
+run_docker zmon-metric-cache \
+    -e MEM_JAVA_PERCENT=5
+
 SCHEDULER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
 BOOTSTRAP_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
 
@@ -130,6 +134,7 @@ run_docker zmon-controller \
     -e REDIS_PORT=6379 \
     -e ZMON_EVENTLOG_URL=http://zmon-eventlog-service:8081/ \
     -e ZMON_KAIROSDB_URL=http://zmon-kairosdb:8083/ \
+    -e ZMON_METRIC_CACHE_URL=http://zmon-metric-cache:8086/ \
     -e PRESHARED_TOKENS_${SCHEDULER_TOKEN}_UID=zmon-scheduler \
     -e PRESHARED_TOKENS_${SCHEDULER_TOKEN}_EXPIRES_AT=1758021422 \
     -e PRESHARED_TOKENS_${BOOTSTRAP_TOKEN}_UID=zmon-demo-bootstrap \
