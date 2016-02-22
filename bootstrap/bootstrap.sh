@@ -137,6 +137,7 @@ run_docker zmon-controller \
     -e ZMON_EVENTLOG_URL=http://zmon-eventlog-service:8081/ \
     -e ZMON_KAIROSDB_URL=http://zmon-kairosdb:8083/ \
     -e ZMON_METRIC_CACHE_URL=http://zmon-metric-cache:8086/ \
+    -e ZMON_SCHEDULER_URL=http://zmon-scheduler:8085/ \
     -e PRESHARED_TOKENS_${SCHEDULER_TOKEN}_UID=zmon-scheduler \
     -e PRESHARED_TOKENS_${SCHEDULER_TOKEN}_EXPIRES_AT=1758021422 \
     -e PRESHARED_TOKENS_${BOOTSTRAP_TOKEN}_UID=zmon-demo-bootstrap \
