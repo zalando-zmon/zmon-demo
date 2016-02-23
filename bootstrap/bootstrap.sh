@@ -113,6 +113,7 @@ run_docker zmon-eventlog-service \
 run_docker zmon-metric-cache \
     -u $USER_ID \
     -e MEM_JAVA_PERCENT=5 \
+    -e SPRING_APPLICATION_JSON='{"metriccache":{"rest_metric_hosts":["zmon-metric-cache"]}}'
     $ZMON_METRIC_CACHE
 
 SCHEDULER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
