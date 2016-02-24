@@ -10,6 +10,7 @@ command: |-
 
       p = str(p)
       r = http('http://'+ entity['host'] +':'+ p +'/metrics', timeout=2).actuator_metrics()
+      r["metrics"]={"GET":{"200":{"mRate":0,"count":0,"75th":0,"99th":0,"median":0,"min":0,"max":0}}}
       return r
 entities:
   - type: instance
