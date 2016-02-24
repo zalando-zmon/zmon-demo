@@ -176,7 +176,7 @@ run_docker zmon-worker \
     -u $USER_ID \
     -e WORKER_REDIS_SERVERS=zmon-redis:6379 \
     -e WORKER_KAIROSDB_HOST=zmon-kairosdb \
-    -e WORKER_METRICCACHE_URL=http://zmon-metric-cache:8086/api/v1/rest-api-metrics/unpartitioned \
+    -e WORKER_METRICCACHE_URL=http://zmon-metric-cache:8086/api/v1/rest-api-metrics/ \
     -e WORKER_METRICCACHE_CHECK_ID=9 \
     $ZMON_WORKER_IMAGE
 
