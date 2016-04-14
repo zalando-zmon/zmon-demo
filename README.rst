@@ -52,7 +52,7 @@ How to renew SSL certs for the zmon.io and demo.zmon.io domains:
 .. code-block:: bash
 
     $ docker stop zmon-httpd  # make sure the HTTP port is "free"
-    $ ./letsencrypt-auto certonly --standalone -d zmon.io -d demo.zmon.io
+    $ ./letsencrypt-auto renew
     $ docker start zmon-httpd
 
 
