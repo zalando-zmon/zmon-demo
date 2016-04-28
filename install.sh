@@ -24,9 +24,11 @@ docker network create --driver bridge zmon-demo
 mkdir -p /data/zmon-cassandra
 
 docker rm -f zmon-demo-bootstrap
+# really ugly (mounting libs), will only work on Ubuntu 16.04
 docker run -it --name zmon-demo-bootstrap \
     -v $(pwd):/workdir \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v /usr/bin/docker:/usr/bin/docker \
+    -v /usr/lib/x86_64-linux-gnu/libltdl.so.7:/usr/lib/x86_64-linux-gnu/libltdl.so.7 \
     --net zmon-demo \
-    registry.opensource.zalan.do/stups/zmon-demo-bootstrap:cd28 /workdir/bootstrap/bootstrap.sh
+    registry.opensource.zalan.do/stups/zmon-demo-bootstrap:cd58 /workdir/bootstrap/bootstrap.sh
