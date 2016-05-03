@@ -134,6 +134,7 @@ run_docker zmon-controller \
     -e POSTGRES_PASSWORD=$PGPASSWORD \
     -e REDIS_HOST=zmon-redis \
     -e REDIS_PORT=6379 \
+    -e ENDPOINTS_CORS_ALLOWED_ORIGINS=https://demo.zmon.io \
     -e ZMON_EVENTLOG_URL=http://zmon-eventlog-service:8081/ \
     -e ZMON_KAIROSDB_URL=http://zmon-kairosdb:8083/ \
     -e ZMON_METRICCACHE_URL=http://zmon-metric-cache:8086/ \
