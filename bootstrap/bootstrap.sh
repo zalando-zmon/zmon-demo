@@ -180,6 +180,8 @@ run_docker zmon-worker \
     -e WORKER_METRICCACHE_CHECK_ID=9 \
     $ZMON_WORKER_IMAGE
 
+wait_port zmon-worker 8080
+
 run_docker zmon-scheduler \
     -u $USER_ID \
     -e MEM_JAVA_PERCENT=20 \
