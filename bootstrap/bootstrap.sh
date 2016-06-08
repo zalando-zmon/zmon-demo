@@ -38,7 +38,7 @@ REPO=registry.opensource.zalan.do/stups
 POSTGRES_IMAGE=$REPO/postgres:9.4.5-1
 REDIS_IMAGE=$REPO/redis:3.0.5
 CASSANDRA_IMAGE=$REPO/cassandra:2.1.5-1
-ZMON_KAIROSDB_IMAGE=$REPO/zmon-kairosdb:0.1.6
+ZMON_KAIROSDB_IMAGE=$REPO/$(get_latest kairosdb)
 ZMON_EVENTLOG_SERVICE_IMAGE=$REPO/$(get_latest zmon-eventlog-service)
 ZMON_CONTROLLER_IMAGE=$REPO/$(get_latest zmon-controller)
 ZMON_SCHEDULER_IMAGE=$REPO/$(get_latest zmon-scheduler)
@@ -97,7 +97,8 @@ wait_port zmon-cassandra 9160
 
 # set up KairosDB
 run_docker zmon-kairosdb \
-    -e "CASSANDRA_HOST_LIST=zmon-cassandra:9160" \
+    -e "KAIROSDB_JETTY_PORT=8083" \
+    -e "KAIROSDB_DATASTORE_CASSANDRA_HOST_LIST=zmon-cassandra" \
     $ZMON_KAIROSDB_IMAGE
 
 wait_port zmon-kairosdb 8083
