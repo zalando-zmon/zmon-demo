@@ -179,6 +179,8 @@ run_docker zmon-worker \
     -e WORKER_KAIROSDB_HOST=zmon-kairosdb \
     -e WORKER_METRICCACHE_URL=http://zmon-metric-cache:8086/api/v1/rest-api-metrics/ \
     -e WORKER_METRICCACHE_CHECK_ID=9 \
+    -e WORKER_EVENTLOG_HOST=zmon-eventlog-service \
+    -e WORKER_EVENTLOG_PORT=8081 \
     $ZMON_WORKER_IMAGE
 
 wait_port zmon-worker 8080
