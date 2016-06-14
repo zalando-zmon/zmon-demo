@@ -31,4 +31,4 @@ docker run -it --name zmon-demo-bootstrap \
     -v /usr/bin/docker:/usr/bin/docker \
     -v /usr/lib/x86_64-linux-gnu/libltdl.so.7:/usr/lib/x86_64-linux-gnu/libltdl.so.7 \
     --net zmon-demo \
-    registry.opensource.zalan.do/stups/zmon-demo-bootstrap:cd58 /workdir/bootstrap/bootstrap.sh
+    registry.opensource.zalan.do/stups/zmon-demo-bootstrap:cd65 /workdir/bootstrap/bootstrap.sh
