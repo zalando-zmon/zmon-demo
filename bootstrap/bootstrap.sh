@@ -36,7 +36,7 @@ function wait_port () {
 echo "Retrieving latest versions.."
 REPO=registry.opensource.zalan.do/stups
 POSTGRES_IMAGE=$REPO/postgres:9.4.5-1
-REDIS_IMAGE=$REPO/redis:3.0.5
+REDIS_IMAGE=$REPO/redis:3.2.0-alpine
 CASSANDRA_IMAGE=$REPO/cassandra:2.1.5-1
 ZMON_KAIROSDB_IMAGE=$REPO/$(get_latest kairosdb)
 ZMON_EVENTLOG_SERVICE_IMAGE=$REPO/$(get_latest zmon-eventlog-service)
