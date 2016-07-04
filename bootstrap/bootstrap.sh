@@ -108,8 +108,12 @@ run_docker zmon-eventlog-service \
     -e SERVER_PORT=8081 \
     -e MEM_JAVA_PERCENT=10 \
     -e POSTGRESQL_HOST=$PGHOST \
-    -e POSTGRESQL_USER=$PGUSER -e POSTGRESQL_PASSWORD=$PGPASSWORD \
+    -e POSTGRESQL_DATABASE=$PGDATABASE \
+    -e POSTGRESQL_USER=$PGUSER \
+    -e POSTGRESQL_PASSWORD=$PGPASSWORD \
     $ZMON_EVENTLOG_SERVICE_IMAGE
+
+wait_port zmon-eventlog-service 8081
 
 run_docker zmon-metric-cache \
     -u $USER_ID \
