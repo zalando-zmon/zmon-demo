@@ -186,6 +186,7 @@ run_docker zmon-worker \
     -e WORKER_METRICCACHE_CHECK_ID=9 \
     -e WORKER_EVENTLOG_HOST=zmon-eventlog-service \
     -e WORKER_EVENTLOG_PORT=8081 \
+    -e WORKER_ENTITYSERVICE_URL=zmon-controller:8080 \
     $ZMON_WORKER_IMAGE
 
 wait_port zmon-worker 8080
