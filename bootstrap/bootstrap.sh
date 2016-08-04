@@ -98,6 +98,7 @@ wait_port zmon-cassandra 9160
 # set up KairosDB
 run_docker zmon-kairosdb \
     -e "KAIROSDB_JETTY_PORT=8083" \
+    -e "KAIROSDB_DATASTORE_CASSANDRA_REPLICATION_FACTOR=1" \
     -e "KAIROSDB_DATASTORE_CASSANDRA_HOST_LIST=zmon-cassandra" \
     $ZMON_KAIROSDB_IMAGE
 
