@@ -216,4 +216,4 @@ redis-cli -h zmon-redis del zmon:metrics
 run_docker zmon-httpd \
     -p 80:80 -p 443:443 \
     -v /etc/letsencrypt/:/etc/letsencrypt/ \
-    zmon-demo-httpd -DSSL
+    registry.opensource.zalan.do/stups/zmon-demo-httpd:v1 -DSSL
