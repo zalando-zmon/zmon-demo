@@ -121,6 +121,7 @@ run_docker zmon-metric-cache \
     -e MEM_JAVA_PERCENT=5 \
     $ZMON_METRIC_CACHE
 
+# http://localhost:8888/_build/html/installation/configuration.html#authentication
 SCHEDULER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
 BOOTSTRAP_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
 WORKER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
