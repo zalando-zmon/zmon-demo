@@ -123,6 +123,7 @@ run_docker zmon-metric-cache \
 
 SCHEDULER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
 BOOTSTRAP_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
+WORKER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
 
 run_docker zmon-controller \
     -u $USER_ID \
@@ -154,6 +155,9 @@ run_docker zmon-controller \
     -e PRESHARED_TOKENS_${BOOTSTRAP_TOKEN}_UID=zmon-demo-bootstrap \
     -e PRESHARED_TOKENS_${BOOTSTRAP_TOKEN}_EXPIRES_AT=1758021422 \
     -e PRESHARED_TOKENS_${BOOTSTRAP_TOKEN}_AUTHORITY=user \
+    -e PRESHARED_TOKENS_${WORKER_TOKEN}_UID=zmon-worker \
+    -e PRESHARED_TOKENS_${WORKER_TOKEN}_EXPIRES_AT=1758021422 \
+    -e PRESHARED_TOKENS_${WORKER_TOKEN}_AUTHORITY=user \
     $ZMON_CONTROLLER_IMAGE
 
 until curl http://zmon-controller:8080/index.jsp &> /dev/null; do
@@ -193,7 +197,7 @@ run_docker zmon-worker \
     -e WORKER_EVENTLOG_PORT=8081 \
     -e WORKER_PLUGIN_ENTITIES_ENTITYSERVICE_URL=http://zmon-controller:8080 \
     -e WORKER_PLUGIN_ENTITIES_ENTITYSERVICE_OAUTH2=True \
-    -e OAUTH2_ACCESS_TOKENS=uid=$SCHEDULER_TOKEN \
+    -e OAUTH2_ACCESS_TOKENS=uid=$WORKER_TOKEN \
     $ZMON_WORKER_IMAGE
 
 wait_port zmon-worker 8080
