@@ -1,3 +1,6 @@
+.. raw:: html
+  <script async defer src="https://slack.zmon.io/slackin.js"></script>
+
 ======================
 ZMON Demo Installation
 ======================
