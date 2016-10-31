@@ -74,6 +74,7 @@ export PGDATABASE=local_zmon_db
 echo "zmon-postgres:5432:*:postgres:$PGPASSWORD" > ~/.pgpass
 chmod 600 ~/.pgpass
 
+# add -v /data/postgresql:/var/lib/postgresql/data for keeping your data around
 run_docker zmon-postgres -e POSTGRES_PASSWORD=$PGPASSWORD $POSTGRES_IMAGE
 wait_port zmon-postgres 5432
 
