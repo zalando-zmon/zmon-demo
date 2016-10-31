@@ -1,9 +1,10 @@
-.. raw:: html
-  <script async defer src="https://slack.zmon.io/slackin.js"></script>
-
 ======================
 ZMON Demo Installation
 ======================
+
+.. image:: https://slack.zmon.io/badge.svg
+   :target: https://slack.zmon.io
+   :alt: ZMON Slack Signup
 
 Scripts to install a single node ZMON for demonstration purposes.
 Theses scripts are used to bootstrap our public ZMON demo https://demo.zmon.io/.
