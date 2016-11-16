@@ -37,7 +37,7 @@ echo "Retrieving latest versions.."
 REPO=registry.opensource.zalan.do/stups
 POSTGRES_IMAGE=$REPO/postgres:9.5.3-1
 REDIS_IMAGE=$REPO/redis:3.2.0-alpine
-CASSANDRA_IMAGE=$REPO/cassandra:2.1.5-1
+CASSANDRA_IMAGE=cassandra:3.9
 ZMON_KAIROSDB_IMAGE=$REPO/$(get_latest kairosdb)
 ZMON_EVENTLOG_SERVICE_IMAGE=$REPO/$(get_latest zmon-eventlog-service)
 ZMON_CONTROLLER_IMAGE=$REPO/$(get_latest zmon-controller)
