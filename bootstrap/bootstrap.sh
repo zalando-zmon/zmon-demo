@@ -94,7 +94,7 @@ wait_port zmon-redis 6379
 run_docker zmon-cassandra \
     -v /data/zmon-cassandra:/opt/cassandra/data \
     $CASSANDRA_IMAGE
-wait_port zmon-cassandra 9160
+wait_port zmon-cassandra 9042
 
 # set up KairosDB
 run_docker zmon-kairosdb \
