@@ -132,6 +132,7 @@ CONTROLLER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --ch
 run_docker zmon-notification-service \
     -u $USER_ID \
     -e SERVER_PORT=8087 \
+    -e NOTIFICATIONS_REDIS_URI="redis://zmon-redis:6379/0" \
     -e NOTIFICATIONS_GOOGLE_PUSH_SERVICE_API_KEY="$SECRET_GOOGLE_API_KEY" \
     -e NOTIFICATIONS_ZMON_URL="https://demo.zmon.io" \
     -e NOTIFICATIONS_DRY_RUN=false \
