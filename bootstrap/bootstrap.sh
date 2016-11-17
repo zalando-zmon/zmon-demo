@@ -124,7 +124,7 @@ run_docker zmon-notification-service \
     -e NOTIFICATIONS_GOOGLE_PUSH_SERVICE_API_KEY="$SECRET_GOOGLE_API_KEY" \
     -e NOTIFICATIONS_ZMON_URL="https://demo.zmon.io" \
     -e NOTIFICATIONS_DRY_RUN=false \
-    -e SPRING_APPLICATION_JSON="{\"notifications\":{\"shared_keys\":{\"$WORKER_TOKEN\": 1504981053654}}}" \
+    -e SPRING_APPLICATION_JSON="{\"notifications\":{\"shared_keys\":{\"$WORKER_TOKEN\":1504981053654}}}" \
     $ZMON_NOTIFICATION_SERVICE
 
 run_docker zmon-metric-cache \
