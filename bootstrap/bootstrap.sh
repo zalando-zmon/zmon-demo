@@ -118,15 +118,6 @@ run_docker zmon-eventlog-service \
 
 wait_port zmon-eventlog-service 8081
 
-run_docker zmon-notification-service \
-    -u $USER_ID \
-    -e SERVER_PORT=8087 \
-    -e NOTIFICATIONS_GOOGLE_PUSH_SERVICE_API_KEY="$SECRET_GOOGLE_API_KEY" \
-    -e NOTIFICATIONS_ZMON_URL="https://demo.zmon.io" \
-    -e NOTIFICATIONS_DRY_RUN=false \
-    -e SPRING_APPLICATION_JSON="{\"notifications\":{\"shared_keys\":{\"$WORKER_TOKEN\":1504981053654}}}" \
-    $ZMON_NOTIFICATION_SERVICE
-
 run_docker zmon-metric-cache \
     -u $USER_ID \
     -e MEM_JAVA_PERCENT=5 \
@@ -136,6 +127,16 @@ run_docker zmon-metric-cache \
 SCHEDULER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
 BOOTSTRAP_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
 WORKER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
+CONTROLLER_TOKEN=$(makepasswd --string=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --chars 32)
+
+run_docker zmon-notification-service \
+    -u $USER_ID \
+    -e SERVER_PORT=8087 \
+    -e NOTIFICATIONS_GOOGLE_PUSH_SERVICE_API_KEY="$SECRET_GOOGLE_API_KEY" \
+    -e NOTIFICATIONS_ZMON_URL="https://demo.zmon.io" \
+    -e NOTIFICATIONS_DRY_RUN=false \
+    -e SPRING_APPLICATION_JSON="{\"notifications\":{\"shared_keys\":{\"$WORKER_TOKEN\":1504981053654,\"$CONTROLLER_TOKEN\":1504981053654}}}" \
+    $ZMON_NOTIFICATION_SERVICE
 
 run_docker zmon-controller \
     -u $USER_ID \
@@ -177,6 +178,7 @@ run_docker zmon-controller \
     -e ZMON_FIREBASE_DATABASE_URL="https://zmon-demo.firebaseio.com" \
     -e ZMON_FIREBASE_STORAGE_BUCKET="zmon-demo.appspot.com" \
     -e ZMON_FIREBASE_MESSAGING_SENDER_ID="280881042812" \
+    -e OAUTH2_ACCESS_TOKENS=notification-service=$CONTROLLER_TOKEN
     $ZMON_CONTROLLER_IMAGE
 
 until curl http://zmon-controller:8080/index.jsp &> /dev/null; do
