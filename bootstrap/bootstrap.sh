@@ -44,12 +44,13 @@ ZMON_CONTROLLER_IMAGE=$REPO/$(get_latest zmon-controller)
 ZMON_SCHEDULER_IMAGE=$REPO/$(get_latest zmon-scheduler)
 ZMON_WORKER_IMAGE=$REPO/$(get_latest zmon-worker)
 ZMON_METRIC_CACHE=$REPO/$(get_latest zmon-metric-cache)
+ZMON_NOTIFICATION_SERVICE=$REPO/$(get_latest zmon-notification-service)
 
 USER_ID=$(id -u daemon)
 
 # first we pull all required Docker images to ensure they are ready
 for image in $POSTGRES_IMAGE $REDIS_IMAGE $CASSANDRA_IMAGE $ZMON_KAIROSDB_IMAGE \
-    $ZMON_EVENTLOG_SERVICE_IMAGE $ZMON_CONTROLLER_IMAGE $ZMON_SCHEDULER_IMAGE $ZMON_WORKER_IMAGE $ZMON_METRIC_CACHE; do
+    $ZMON_EVENTLOG_SERVICE_IMAGE $ZMON_CONTROLLER_IMAGE $ZMON_SCHEDULER_IMAGE $ZMON_WORKER_IMAGE $ZMON_METRIC_CACHE $ZMON_NOTIFICATION_SERVICE; do
     echo "Pulling image ${image}.."
     docker pull $image
 done
@@ -117,6 +118,15 @@ run_docker zmon-eventlog-service \
 
 wait_port zmon-eventlog-service 8081
 
+run_docker zmon-notification-service \
+    -u $USER_ID \
+    -e SERVER_PORT=8087 \
+    -e NOTIFICATIONS_GOOGLE_PUSH_SERVICE_API_KEY="$SECRET_GOOGLE_API_KEY" \
+    -e NOTIFICATIONS_ZMON_URL="https://demo.zmon.io" \
+    -e NOTIFICATIONS_DRY_RUN=false \
+    -e SPRING_APPLICATION_JSON='{"notifications":{"shared_keys":{"'$WORKER_TOKEN'": 1504981053654}}}' \
+    $ZMON_NOTIFICATION_SERVICE
+
 run_docker zmon-metric-cache \
     -u $USER_ID \
     -e MEM_JAVA_PERCENT=5 \
@@ -160,6 +170,13 @@ run_docker zmon-controller \
     -e PRESHARED_TOKENS_${WORKER_TOKEN}_UID=zmon-worker \
     -e PRESHARED_TOKENS_${WORKER_TOKEN}_EXPIRES_AT=1758021422 \
     -e PRESHARED_TOKENS_${WORKER_TOKEN}_AUTHORITY=user \
+    -e ZMON_ENABLE_FIREBASE=true \
+    -e ZMON_NOTIFICATIONSERVICE_URL=http://zmon-notification-service:8087/ \
+    -e ZMON_FIREBASE_API_KEY="AIzaSyBM1ktKS5u_d2jxWPHVU7Xk39s-PG5gy7c" \
+    -e ZMON_FIREBASE_AUTH_DOMAIN="zmon-demo.firebaseapp.com" \
+    -e ZMON_FIREBASE_DATABASE_URL="https://zmon-demo.firebaseio.com" \
+    -e ZMON_FIREBASE_STORAGE_BUCKET="zmon-demo.appspot.com" \
+    -e ZMON_FIREBASE_MESSAGING_SENDER_ID="280881042812" \
     $ZMON_CONTROLLER_IMAGE
 
 until curl http://zmon-controller:8080/index.jsp &> /dev/null; do
