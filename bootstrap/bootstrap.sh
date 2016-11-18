@@ -223,6 +223,8 @@ run_docker zmon-worker \
     -e OAUTH2_ACCESS_TOKENS=uid=$WORKER_TOKEN \
     -e WORKER_NOTIFICATIONS_SERVICE_URL=http://zmon-notification-service:8087/ \
     -e WORKER_NOTIFICATIONS_KEY=$WORKER_TOKEN \
+    -e WORKER_NOTIFICATIONS_PUSH_URL=http://zmon-notification-service:8087/ \
+    -e WORKER_NOTIFICATIONS_PUSH_KEY=$WORKER_TOKEN \
     $ZMON_WORKER_IMAGE
 
 wait_port zmon-worker 8080
