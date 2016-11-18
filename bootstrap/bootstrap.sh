@@ -179,6 +179,7 @@ run_docker zmon-controller \
     -e ZMON_FIREBASE_DATABASE_URL="https://zmon-demo.firebaseio.com" \
     -e ZMON_FIREBASE_STORAGE_BUCKET="zmon-demo.appspot.com" \
     -e ZMON_FIREBASE_MESSAGING_SENDER_ID="280881042812" \
+    -e TOKENS_ENABLE_MOCK=false \
     -e OAUTH2_ACCESS_TOKENS=notification-service=$CONTROLLER_TOKEN \
     $ZMON_CONTROLLER_IMAGE
 
