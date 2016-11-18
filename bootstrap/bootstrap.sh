@@ -134,7 +134,7 @@ run_docker zmon-notification-service \
     -u $USER_ID \
     -e SERVER_PORT=8087 \
     -e NOTIFICATIONS_REDIS_URI="redis://zmon-redis:6379/0" \
-    -e NOTIFICATIONS_GOOGLE_PUSH_SERVICE_API_KEY="$(cat ../../google_key)" \
+    -e NOTIFICATIONS_GOOGLE_PUSH_SERVICE_API_KEY="$(cat .google_key)" \
     -e NOTIFICATIONS_ZMON_URL="https://demo.zmon.io" \
     -e NOTIFICATIONS_DRY_RUN=false \
     -e SPRING_APPLICATION_JSON="{\"notifications\":{\"shared_keys\":{\"INVALID\":1504981053654,\"$WORKER_TOKEN\":1504981053654,\"$CONTROLLER_TOKEN\":1504981053654}}}" \
