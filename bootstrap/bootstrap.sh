@@ -83,9 +83,6 @@ cd /workdir/zmon-controller/zmon-controller-master/database/zmon
 psql -c "CREATE DATABASE $PGDATABASE;" postgres
 psql -c 'CREATE EXTENSION IF NOT EXISTS hstore;'
 psql -c "CREATE ROLE zmon WITH LOGIN PASSWORD '--secret--';" postgres
-find -name '*.sql' | sort | xargs cat | psql
-
-psql -f /workdir/zmon-eventlog-service/zmon-eventlog-service-master/database/eventlog/00_create_schema.sql
 
 # set up Redis
 run_docker zmon-redis $REDIS_IMAGE
